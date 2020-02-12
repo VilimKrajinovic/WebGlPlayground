@@ -1,4 +1,53 @@
+class Shader {
+
+    constructor(gl, vertexShaderSource, fragmentShaderSource) {
+        this.program = ShaderUtil.createProgramFromText(gl, vertexShaderSource, fragmentShaderSource, true);
+
+        if (this.program != null) {
+            this.gl = gl;
+            gl.useProgram(this.program);
+            this.attributeLocation = ShaderUtil.getStandardAttributeLocations(gl, this.program);
+            this.uniformLocation = {};
+        }
+    }
+
+    activate() {
+        this.gl.useProgram(this.program);
+        return this;
+    }
+
+    deactivate() {
+        this.gl.useProgram(null);
+        return this;
+    }
+
+    dispose() {
+        if (this.gl.getParameter(this.gl.CURRENT_PROGRAM) === this.program) {
+            this.gl.useProgram(null);
+        }
+        this.gl.deleteProgram(this.program);
+    }
+
+    preRender() {
+        //abstract method, extended object implement it
+    }
+
+    renderModel(model) {
+        this.gl.bindVertexArray(model.mesh.vao);
+        if (model.mesh.indexCount) {
+            this.gl.drawElements(model.mesh.drawMode, model.mesh.indexLength, gl.UNSIGNED_SHORT, 0);
+        } else {
+            this.gl.drawArrays(model.mesh.drawMode, 0, model.mesh.vertexCount);
+        }
+
+        this.gl.bindVertexArray(null);
+        return this;
+
+    }
+}
+
 class ShaderUtil {
+
     static domShaderSrc(elementId) {
         let element = document.getElementById(elementId);
         if (!element || element.text === "") {
@@ -26,6 +75,11 @@ class ShaderUtil {
         let program = gl.createProgram();
         gl.attachShader(program, vertexShader);
         gl.attachShader(program, fragmentShader);
+
+        gl.bindAttribLocation(program, ATTRIBUTE_POSITION_LOCATION, ATTRIBUTE_POSITION_NAME);
+        gl.bindAttribLocation(program, ATTRIBUTE_NORMAL_LOCATION, ATTRIBUTE_NORMAL_NAME);
+        gl.bindAttribLocation(program, ATTRIBUTE_UV_LOCATION, ATTRIBUTE_UV_NAME);
+
         gl.linkProgram(program);
 
 
@@ -63,8 +117,34 @@ class ShaderUtil {
         if (!vertexShader) return null;
 
         let fragmentShader = ShaderUtil.createShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
-        if (!fragmentShader) return null;
+        if (!fragmentShader) {
+            gl.deleteShader(vertexShader);
+            return null;
+        }
 
-        return ShaderUtil.createProgram(gl,vertexShader, fragmentShader, true);
+        return ShaderUtil.createProgram(gl, vertexShader, fragmentShader, true);
+    }
+
+    static createProgramFromText(gl, vertexShaderText, fragmentShaderText, doValidate) {
+        let vShader = ShaderUtil.createShader(gl, vertexShaderText, gl.VERTEX_SHADER);
+        if (!vShader) {
+            return null;
+        }
+
+        let fShader = ShaderUtil.createShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
+        if (!fShader) {
+            gl.deleteShader(vShader);
+            return null;
+        }
+
+        return ShaderUtil.createProgram(gl, vShader, fShader);
+    }
+
+    static getStandardAttributeLocations(gl, program) {
+        return {
+            position: gl.getAttribLocation(program, ATTRIBUTE_POSITION_NAME),
+            normals: gl.getAttribLocation(program, ATTRIBUTE_NORMAL_NAME),
+            uvs: gl.getAttribLocation(program, ATTRIBUTE_UV_NAME)
+        };
     }
 }

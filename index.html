@@ -6,40 +6,31 @@
     <script src="scripts/gl.js"></script>
     <script src="scripts/Shader.js"></script>
     <script src="scripts/RenderLoop.js"></script>
+    <script src="scripts/Model.js"></script>
+
     <script>
         let gl;
         let gVerticesCount = 0;
         let uPointSizeLocation = -1;
         let uAngle = 0;
         let gRenderLoop;
+        let gShader = null;
+        let gModel = null;
 
         window.addEventListener("load", function () {
             gl = GLInstance("glcanvas").fSetSize(500, 500).fClear();
 
             // Setup shaders
-            let shaderProgram = ShaderUtil.domShaderProgram(gl, "vertexShader", "fragmentShader", true);
+            gShader = new TestShader(gl);
 
-            // get location of uniforms and attributes
-            gl.useProgram(shaderProgram);
-            let aPositionLocation = gl.getAttribLocation(shaderProgram, "aPosition");
-            uPointSizeLocation = gl.getUniformLocation(shaderProgram, "uPointSize");
-            uAngle = gl.getUniformLocation(shaderProgram, "uAngle");
-            gl.useProgram(null);
+            // Setup data buffers
 
-            //setup data buffers
-            let arrayVertices = new Float32Array([0, 0, 0]);
-            let bufferVertices = gl.fCreateArrayBuffer(arrayVertices);
+            let mesh = gl.fCreateMeshVAO("dots", null, [0,0,0]);
+            mesh.drawMode = gl.POINTS;
 
-            gVerticesCount = arrayVertices.length / 3
+            gModel = new Model(mesh);
 
-            //setup for drawing
-            gl.useProgram(shaderProgram);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, bufferVertices);
-            gl.enableVertexAttribArray(aPositionLocation);
-            gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
+            // Setup drawing
             gRenderLoop = new RenderLoop(onRender, 30.0).start();
         });
 
@@ -50,15 +41,32 @@
 
 
         function onRender(deltaTime) {
-            gPointSize += gPointSizeStep * deltaTime;
-            let size = (Math.sin(gPointSize) * 20.0) + 30.0;
-            gl.uniform1f(uPointSizeLocation, size);
-
-            gAngle += gAngleStep * deltaTime;
-            gl.uniform1f(uAngle, gAngle);
-
             gl.fClear();
-            gl.drawArrays(gl.POINTS, 0, gVerticesCount);
+
+            gShader.activate().set(
+                (Math.sin((gPointSize += gPointSizeStep * deltaTime)) * 10.0) +30.0,
+                (gAngle += gAngleStep * deltaTime)
+            ).renderModel(gModel);
+        }
+
+        class TestShader extends Shader {
+            constructor(gl) {
+                let vertexSource = ShaderUtil.domShaderSrc("vertexShader");
+                let fragmentSource = ShaderUtil.domShaderSrc("fragmentShader");
+
+                super(gl, vertexSource, fragmentSource);
+
+                this.uniformLocation.uPointSize = gl.getUniformLocation(this.program, "uPointSize");
+                this.uniformLocation.uAngle = gl.getUniformLocation(this.program, "uAngle");
+
+                gl.useProgram(null);
+            }
+
+            set(size, angle) {
+                this.gl.uniform1f(this.uniformLocation.uPointSize, size);
+                this.gl.uniform1f(this.uniformLocation.uAngle, angle);
+                return this;
+            };
         }
     </script>
     <link rel="stylesheet" href="style.css">
@@ -97,7 +105,7 @@ in vec3 size;
 out vec4 finalColour;
 
 void main(void){
-    float colour = (40.0 - uPointSize )/ 20.0;
+    float colour = (40.0 - uPointSize)/ 20.0;
     finalColour = vec4(colour, colour, colour, 1.0);
 }
 </script>
