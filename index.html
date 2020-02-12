@@ -32,7 +32,7 @@
     <script>
         var gl;
         window.addEventListener("load", function () {
-            gl = GLInstance("glcanvas").fSetSize(500,500).fClear();
+            gl = GLInstance("glcanvas").fSetSize(500, 500).fClear();
         })
     </script>
 </head>
@@ -41,6 +41,30 @@
 <div>
     <canvas id="glcanvas"></canvas>
 </div>
+
+<script id="vertexShader" type="x-shader/x-vertex">
+    #version 300 es
+    in vec3 aPosition;
+
+    uniform float uPointSize;
+
+    void main(void){
+        gl_PointSize = uPointSize;
+        gl_Posiiton = vec4(aPosition, 1.0);
+    }
+</script>
+
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+    #version 300 es
+    precision mediump float;
+
+    out vec4 finalColour;
+
+    void main(void){
+        finalColour = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+</script>
 
 </body>
 </html>
