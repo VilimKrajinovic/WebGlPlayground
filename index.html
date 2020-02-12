@@ -10,7 +10,7 @@
         let gl;
         let gVerticesCount = 0;
         let uPointSizeLocation = -1;
-        let uAngle  = 0;
+        let uAngle = 0;
         let gRenderLoop;
 
         window.addEventListener("load", function () {
@@ -22,8 +22,8 @@
             // get location of uniforms and attributes
             gl.useProgram(shaderProgram);
             let aPositionLocation = gl.getAttribLocation(shaderProgram, "aPosition");
-
             uPointSizeLocation = gl.getUniformLocation(shaderProgram, "uPointSize");
+            uAngle = gl.getUniformLocation(shaderProgram, "uAngle");
             gl.useProgram(null);
 
             //setup data buffers
@@ -45,11 +45,17 @@
 
         let gPointSize = 0;
         let gPointSizeStep = 3;
+        let gAngle = 0;
+        let gAngleStep = (Math.PI / 180.0) * 90;
+
 
         function onRender(deltaTime) {
             gPointSize += gPointSizeStep * deltaTime;
             let size = (Math.sin(gPointSize) * 20.0) + 30.0;
             gl.uniform1f(uPointSizeLocation, size);
+
+            gAngle += gAngleStep * deltaTime;
+            gl.uniform1f(uAngle, gAngle);
 
             gl.fClear();
             gl.drawArrays(gl.POINTS, 0, gVerticesCount);
@@ -68,11 +74,15 @@
 <script id="vertexShader" type="x-shader/x-vertex">#version 300 es
 in vec3 aPosition;
 
-uniform float uPointSize;
+uniform mediump float uPointSize;
+uniform float uAngle;
+
+out vec3 size;
 
 void main(void){
     gl_PointSize = uPointSize;
-    gl_Position = vec4(aPosition, 1.0);
+    size = vec3(uPointSize);
+    gl_Position = vec4(cos(uAngle) * 0.8 + aPosition.x, sin(uAngle) * 0.8 + aPosition.y, aPosition.z, 1.0);
 }
 </script>
 
@@ -80,10 +90,13 @@ void main(void){
 <script id="fragmentShader" type="x-shader/x-fragment">#version 300 es
 precision mediump float;
 
+uniform mediump float uPointSize;
+in vec3 size;
 out vec4 finalColour;
 
 void main(void){
-    finalColour = vec4(0.0, 0.0, 0.0, 1.0);
+    float colour = (40.0 - uPointSize )/ 20.0;
+    finalColour = vec4(colour, colour, colour, 1.0);
 }
 </script>
 
