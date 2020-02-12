@@ -4,42 +4,76 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="scripts/gl.js"></script>
+    <script src="scripts/Shader.js"></script>
     <script>
-        var gl;
+        let gl;
         window.addEventListener("load", function () {
             gl = GLInstance("glcanvas").fSetSize(500, 500).fClear();
+
+            // Setup shaders
+            let vertexShaderText = ShaderUtil.domShaderSrc("vertexShader");
+            let fragmentShaderText = ShaderUtil.domShaderSrc("fragmentShader");
+            let vertexShader = ShaderUtil.createShader(gl, vertexShaderText, gl.VERTEX_SHADER);
+            let fragmentShader = ShaderUtil.createShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
+            let shaderProgram = ShaderUtil.createProgram(gl, vertexShader, fragmentShader, true);
+
+            // get location of uniforms and attributes
+            gl.useProgram(shaderProgram);
+            let aPositionLocation = gl.getAttribLocation(shaderProgram, "aPosition");
+            let uPointSizeLocation = gl.getUniformLocation(shaderProgram, "uPointSize");
+            gl.useProgram(null);
+
+            //setup data buffers
+            let arrayVertices = new Float32Array([0, 0, 0]);
+            let bufferVertices = gl.createBuffer();
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, bufferVertices);
+            gl.bufferData(gl.ARRAY_BUFFER, arrayVertices, gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+
+            //setup for drawing
+            gl.useProgram(shaderProgram);
+            gl.uniform1f(uPointSizeLocation, 50.0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, bufferVertices);
+            gl.enableVertexAttribArray(aPositionLocation);
+            gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            gl.drawArrays(gl.POINTS, 0, arrayVertices.length / 3);
         })
     </script>
     <link rel="stylesheet" href="style.css">
+
 </head>
+[
 <body>
 
 <div>
     <canvas id="glcanvas"></canvas>
 </div>
 
-<script id="vertexShader" type="x-shader/x-vertex">
-    #version 300 es
-    in vec3 aPosition;
+<script id="vertexShader" type="x-shader/x-vertex">#version 300 es
+in vec3 aPosition;
 
-    uniform float uPointSize;
+uniform float uPointSize;
 
-    void main(void){
-        gl_PointSize = uPointSize;
-        gl_Posiiton = vec4(aPosition, 1.0);
-    }
+void main(void){
+    gl_PointSize = uPointSize;
+    gl_Position = vec4(aPosition, 1.0);
+}
 </script>
 
 
-<script id="fragmentShader" type="x-shader/x-fragment">
-    #version 300 es
-    precision mediump float;
+<script id="fragmentShader" type="x-shader/x-fragment">#version 300 es
+precision mediump float;
 
-    out vec4 finalColour;
+out vec4 finalColour;
 
-    void main(void){
-        finalColour = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+void main(void){
+    finalColour = vec4(0.0, 0.0, 0.0, 1.0);
+}
 </script>
 
 </body>
