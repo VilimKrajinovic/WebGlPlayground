@@ -22,7 +22,6 @@ class ShaderUtil {
         return shader;
     }
 
-
     static createProgram(gl, vertexShader, fragmentShader, doValidate) {
         let program = gl.createProgram();
         gl.attachShader(program, vertexShader);
@@ -51,5 +50,21 @@ class ShaderUtil {
         gl.deleteShader(fragmentShader);
 
         return program;
+    }
+
+    static domShaderProgram(gl, vertexId, fragmentId, doValidate) {
+        let vertexShaderText = ShaderUtil.domShaderSrc(vertexId);
+        if (!vertexShaderText) return null;
+
+        let fragmentShaderText = ShaderUtil.domShaderSrc(fragmentId);
+        if (!fragmentShaderText) return null;
+
+        let vertexShader = ShaderUtil.createShader(gl, vertexShaderText, gl.VERTEX_SHADER);
+        if (!vertexShader) return null;
+
+        let fragmentShader = ShaderUtil.createShader(gl, fragmentShaderText, gl.FRAGMENT_SHADER);
+        if (!fragmentShader) return null;
+
+        return ShaderUtil.createProgram(gl,vertexShader, fragmentShader, true);
     }
 }
