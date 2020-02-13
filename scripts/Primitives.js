@@ -2,35 +2,35 @@ let Primitives = {};
 Primitives.GridAxis = class {
 
     static createMesh(gl) {
-        var vertices = [],
+        let vertices = [],
             size = 1.8,			// W/H of the outer box of the grid, from origin we can only go 1 unit in each direction, so from left to right is 2 units max
-            divisions = 10.0,			// How to divide up the grid
+            divisions = 50.0,			// How to divide up the grid
             step = size / divisions,	// Steps between each line, just a number we increment by for each line in the grid.
             half = size / 2;	// From origin the starting position is half the size.
 
-        var p;	//Temp variable for position value.
-        for (var i = 0; i <= divisions; i++) {
+        let position;
+        for (let i = 0; i <= divisions; i++) {
             //Vertical line
-            p = -half + (i * step);
-            vertices.push(p);		//x1
+            position = -half + (i * step);
+            vertices.push(position);//x1
             vertices.push(half);	//y1
             vertices.push(0);		//z1
             vertices.push(0);		//c2
 
-            vertices.push(p);		//x2
+            vertices.push(position);//x2
             vertices.push(-half);	//y2
             vertices.push(0);		//z2
             vertices.push(1);		//c2
 
             //Horizontal line
-            p = half - (i * step);
+            position = half - (i * step);
             vertices.push(-half);	//x1
-            vertices.push(p);		//y1
+            vertices.push(position);//y1
             vertices.push(0);		//z1
             vertices.push(0);		//c1
 
             vertices.push(half);	//x2
-            vertices.push(p);		//y2
+            vertices.push(position);//y2
             vertices.push(0);		//z2
             vertices.push(1);		//c2
         }
