@@ -1,113 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <style>
+        html,body{margin:0px; padding:0px; width:100%; height:100%;}
+        body{background-color:#404040;}
+
+        canvas{border:1px solid black;}
+        div{display:flex; width:100%; height:100%; align-items:center; justify-content:center;}
+    </style>
+
+    <script src="scripts/webgl-debug.js"></script>
     <script src="scripts/gl.js"></script>
     <script src="scripts/Shader.js"></script>
     <script src="scripts/RenderLoop.js"></script>
     <script src="scripts/Model.js"></script>
 
     <script>
-        let gl;
-        let gVerticesCount = 0;
-        let uPointSizeLocation = -1;
-        let uAngle = 0;
-        let gRenderLoop;
-        let gShader = null;
-        let gModel = null;
+        var gl, gRLoop,	gShader, gModal;
 
-        window.addEventListener("load", function () {
-            gl = GLInstance("glcanvas").fSetSize(500, 500).fClear();
+        window.addEventListener("load",function(){
+            //Main Setup
+            gl = GLInstance("glcanvas").fSetSize(500,500).fClear();
+            gShader = new TestShader(gl,[ 0.8,0.8,0.8,  1,0,0,  0,1,0,  0,0,1 ]); //Gray,Red,Green,Blue
 
-            // Setup shaders
-            gShader = new TestShader(gl);
+            //Setup our modal
+            var mesh = gl.fCreateMeshVAO("lines",null,[ 0,1,0, 0,-1,0     ,-1,0,0, 1,0,0 ]);
+            mesh.drawMode = gl.LINES;
+            gModal = new Model(mesh);
+            //gModal = new Modal(Primatives.GridAxis.createMesh(gl));
 
-            // Setup data buffers
-
-            let mesh = gl.fCreateMeshVAO("dots", null, [0,0,0]);
-            mesh.drawMode = gl.POINTS;
-
-            gModel = new Model(mesh);
-
-            // Setup drawing
-            gRenderLoop = new RenderLoop(onRender, 30.0).start();
+            //Start Rendering
+            RLoop = new RenderLoop(onRender).start();
         });
 
-        let gPointSize = 0;
-        let gPointSizeStep = 3;
-        let gAngle = 0;
-        let gAngleStep = (Math.PI / 180.0) * 90;
-
-
-        function onRender(deltaTime) {
+        function onRender(dt){
             gl.fClear();
-
-            gShader.activate().set(
-                (Math.sin((gPointSize += gPointSizeStep * deltaTime)) * 10.0) +30.0,
-                (gAngle += gAngleStep * deltaTime)
-            ).renderModel(gModel);
+            gShader.activate().renderModel(gModal);
         }
 
-        class TestShader extends Shader {
-            constructor(gl) {
-                let vertexSource = ShaderUtil.domShaderSrc("vertexShader");
-                let fragmentSource = ShaderUtil.domShaderSrc("fragmentShader");
+        class TestShader extends Shader{
+            constructor(gl,aryColor){
+                var vertSrc = ShaderUtil.domShaderSrc("vertex_shader"),
+                    fragSrc = ShaderUtil.domShaderSrc("fragment_shader");
+                super(gl,vertSrc,fragSrc);
 
-                super(gl, vertexSource, fragmentSource);
+                //Our shader uses custom uniforms
+                var uColor	= gl.getUniformLocation(this.program,"uColor");
+                gl.uniform3fv(uColor, aryColor);
 
-                this.uniformLocation.uPointSize = gl.getUniformLocation(this.program, "uPointSize");
-                this.uniformLocation.uAngle = gl.getUniformLocation(this.program, "uAngle");
-
-                gl.useProgram(null);
+                gl.useProgram(null); //Done setting up shader
             }
-
-            set(size, angle) {
-                this.gl.uniform1f(this.uniformLocation.uPointSize, size);
-                this.gl.uniform1f(this.uniformLocation.uAngle, angle);
-                return this;
-            };
         }
     </script>
-    <link rel="stylesheet" href="style.css">
-
 </head>
-[
 <body>
-
 <div>
     <canvas id="glcanvas"></canvas>
 </div>
 
+<script id="vertex_shader" type="x-shader/x-vertex">#version 300 es
+in vec3 a_position;	//Standard position data.
+layout(location=4) in float a_color;	//Will hold the 4th custom position of the custom position buffer.
 
-<!--VERTEX SHADER-->
-<script id="vertexShader" type="x-shader/x-vertex">#version 300 es
-in vec3 aPosition;
+uniform vec3 uColor[4];	//Color Array
 
-uniform mediump float uPointSize;
-uniform float uAngle;
-
-out vec3 size;
+out lowp vec4 color;	//Color to send to fragment shader.
 
 void main(void){
-    gl_PointSize = uPointSize;
-    size = vec3(uPointSize);
-    gl_Position = vec4(cos(uAngle) * 0.8 + aPosition.x, sin(uAngle) * 0.8 + aPosition.y, aPosition.z, 1.0);
+    color = vec4(uColor[ int(a_color) ],1.0); //Using the 4th float as a color index.
+    gl_Position = vec4(a_position, 1.0);
 }
 </script>
 
-<!--FRAGMENT SHADER-->
-<script id="fragmentShader" type="x-shader/x-fragment">#version 300 es
+<script id="fragment_shader" type="x-shader/x-fragment">#version 300 es
 precision mediump float;
 
-uniform mediump float uPointSize;
-in vec3 size;
-out vec4 finalColour;
+in vec4 color;
+out vec4 finalColor;
 
-void main(void){
-    float colour = (40.0 - uPointSize)/ 20.0;
-    finalColour = vec4(colour, 0.0, colour, 1.0);
-}
+void main(void){ finalColor = color; }
 </script>
 
 </body>

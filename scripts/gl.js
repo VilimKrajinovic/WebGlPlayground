@@ -40,6 +40,8 @@ function GLInstance(canvasID) {
         let rtn = {drawMode: this.TRIANGLES};
         rtn.vao = this.createVertexArray();
 
+        this.bindVertexArray(rtn.vao);
+
         if (arrayVertex !== undefined && arrayVertex != null) {
             rtn.bufferVertices = this.createBuffer();
             rtn.vertexComponentLength = 3;
