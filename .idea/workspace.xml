@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1cca1fb2-9ac1-4af4-80b1-f45a7b2c8b32" name="Default Changelist" comment="Fixing .gitignore">
-      <change afterPath="$PROJECT_DIR$/scripts/Math.js" afterDir="false" />
+    <list default="true" id="1cca1fb2-9ac1-4af4-80b1-f45a7b2c8b32" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/Transform.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Model.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Shader.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Shader.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -45,6 +49,7 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="GO_FMT" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1581631468289" />
@@ -76,7 +81,10 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="JavaScript Debug.index.html">
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/WebGlPlayground/WebGLTestingGround/index.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
     <configuration name="Tomcat 9.0.24" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 9.0.24" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="11" nameIsGenerated="true">
       <option name="UPDATING_POLICY" value="restart-server" />
       <deployment />
@@ -204,6 +212,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Tomcat Server.Tomcat 9.0.24" />
+      <item itemvalue="JavaScript Debug.index.html" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.index.html" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -312,7 +329,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581631376866</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added a math library for vector and matrix math">
+      <created>1581661538200</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1581661538200</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -331,7 +355,8 @@
     <MESSAGE value="Fixed bug, and cleaned up code" />
     <MESSAGE value="Rendering our first line" />
     <MESSAGE value="Rendering a grid" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rendering a grid" />
+    <MESSAGE value="Added a math library for vector and matrix math" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a math library for vector and matrix math" />
   </component>
   <component name="masterDetails">
     <states>

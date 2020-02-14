@@ -7,7 +7,7 @@ class Shader {
             this.gl = gl;
             gl.useProgram(this.program);
             this.attributeLocation = ShaderUtil.getStandardAttributeLocations(gl, this.program);
-            this.uniformLocation = {};
+            this.uniformLocation = ShaderUtil.getStandardUniformLocations(gl, this.program);
         }
     }
 
@@ -18,6 +18,21 @@ class Shader {
 
     deactivate() {
         this.gl.useProgram(null);
+        return this;
+    }
+
+    setPerspective(matrixData){
+        this.gl.uniformMatrix4fv(this.uniformLocation.perspective, false, matrixData);
+        return this;
+    }
+
+    setModelMatrix(matrixData){
+        this.gl.uniformMatrix4fv(this.uniformLocation.modelMatrix, false, matrixData);
+        return this;
+    }
+
+    setCameraMatrix(matrixData){
+        this.gl.uniformMatrix4fv(this.uniformLocation.cameraMatrix, false, matrixData);
         return this;
     }
 
@@ -33,6 +48,7 @@ class Shader {
     }
 
     renderModel(model) {
+        this.setModelMatrix(model.transform.getViewMatrix());
         this.gl.bindVertexArray(model.mesh.vao);
         if (model.mesh.indexCount) {
             this.gl.drawElements(model.mesh.drawMode, model.mesh.indexLength, gl.UNSIGNED_SHORT, 0);
@@ -147,4 +163,14 @@ class ShaderUtil {
             uvs: gl.getAttribLocation(program, ATTRIBUTE_UV_NAME)
         };
     }
+
+    static getStandardUniformLocations(gl, program) {
+        return {
+            perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
+            modelMatrix: gl.getUniformLocation(program, "uModelViewMatrix"),
+            cameraMatrix: gl.getUniformLocation(program, "uCameraMatrix"),
+            mainTexture: gl.getUniformLocation(program, "uMainTexture")
+        };
+    }
+
 }
