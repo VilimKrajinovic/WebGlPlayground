@@ -18,7 +18,6 @@
     <script>
         let gl, gRenderLoop, gShader, gModel, gCamera, gCameraController;
         let gGridShader, gGridModel;
-        let gModelQuad;
 
 
         window.addEventListener("load", function () {
@@ -34,10 +33,7 @@
             gGridModel = Primitives.GridAxis.createModel(gl, true);
 
             gShader = new TestShader(gl, gCamera.projectionMatrix);
-            gModel = Primitives.Quad.createModel(gl);
-            gModel.setPosition(0, 1, 0).setScale(0.2, 0.2, 0.2);
-
-            gModelQuad = new Model(gl.mMeshCache["Quad"]);
+            gModel = Primitives.MultiQuad.createModel(gl);
 
             //Start Rendering
             gRenderLoop = new RenderLoop(onRender).start();
@@ -54,7 +50,6 @@
             gShader.activate()
                 .setCameraMatrix(gCamera.viewMatrix)
                 .renderModel(gModel.preRender())
-                .renderModel(gModelQuad.preRender());
         }
 
         class TestShader extends Shader {

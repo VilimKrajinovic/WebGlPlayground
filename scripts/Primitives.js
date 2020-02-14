@@ -21,6 +21,45 @@ Primitives.Quad = class {
     }
 };
 
+Primitives.MultiQuad = class {
+    static createModel(gl) {
+        return new Model(Primitives.MultiQuad.createMesh(gl))
+    }
+
+    static createMesh(gl) {
+        let arrayIndex = [],
+            arrayUv = [],
+            arrayVertices = [];
+
+        for (let i = 0; i < 10; i++) {
+            let size = 0.2 + (0.8 * Math.random()),
+                half = size * 0.5,
+                angle = Math.PI * 2 * Math.random(),
+                dx = half * Math.cos(angle),
+                dy = half * Math.sin(angle),
+                x = -2.5 + (Math.random() * 5),
+                y = -2.5 + (Math.random() * 5),
+                z = 2.5 - (Math.random() * 5),
+                p = i * 4;
+
+            arrayVertices.push(x - dx, y + half, z - dy);
+            arrayVertices.push(x - dx, y - half, z - dy);
+            arrayVertices.push(x + dx, y - half, z + dy);
+            arrayVertices.push(x + dx, y + half, z + dy);
+
+            arrayUv.push(0, 0, 0, 1, 1, 1, 1, 0);
+            arrayIndex.push(p, p + 1, p + 2, p + 2, p + 3, p);
+        }
+
+        let mesh = gl.fCreateMeshVAO("MultiQuad", arrayIndex, arrayVertices, null, arrayUv);
+        mesh.noCulling = true;
+        mesh.doBlending = true;
+        return mesh;
+
+    }
+
+}
+
 Primitives.GridAxis = class {
 
     static createModel(gl, includeAxis) {
