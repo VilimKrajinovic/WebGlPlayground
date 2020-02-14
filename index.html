@@ -12,19 +12,28 @@
     <script src="scripts/Transform.js"></script>
     <script src="scripts/Model.js"></script>
     <script src="scripts/Primitives.js"></script>
+    <script src="scripts/Camera.js"></script>
+
 
     <script>
-        let gl, gRenderLoop, gShader, gModel;
+        let gl, gRenderLoop, gShader, gModel, gCamera, gCameraController;
 
         window.addEventListener("load", function () {
             //Main Setup
             gl = GLInstance("glcanvas").fSetSize(500, 500).fClear();
+
+            gCamera = new Camera(gl);
+            gCamera.transform.position.set(0, 0, 3);
+            gCameraController = new CameraController(gl, gCamera);
+
+
             gShader = new TestShader(gl, [0.8, 0.8, 0.8, 1, 0, 0, 0, 1, 0, 0, 0, 1]); //Gray,Red,Green,Blue
+            gShader.activate().setPerspective(gCamera.projectionMatrix).deactivate();
 
             //Setup our model
             gModel = new Model(Primitives.GridAxis.createMesh(gl))
                 .setScale(0.5, 0.5, 0.5)
-                .setRotation(0, 0, 45)
+                .setRotation(0, 0, 0)
                 .setPosition(0, 0, 0);
 
             //Start Rendering
@@ -32,10 +41,12 @@
         });
 
         function onRender(deltaTime) {
+            gCamera.updateViewMatrix();
             gl.fClear();
-            gShader.activate().renderModel(gModel
-                .addRotation(deltaTime * 10, deltaTime * 20, deltaTime * 30)
-                .preRender());
+
+            gShader.activate()
+                .setCameraMatrix(gCamera.viewMatrix)
+                .renderModel(gModel.preRender());
         }
 
         class TestShader extends Shader {
@@ -58,17 +69,19 @@
 </div>
 
 <script id="vertex_shader" type="x-shader/x-vertex">#version 300 es
-in vec3 a_position;//Standard position data.
-layout(location=4) in float a_color;//Will hold the 4th custom position of the custom position buffer.
+in vec3 aPosition;
+layout(location=4) in float aColour;
 
+uniform mat4 uPerspectiveMatrix;
+uniform mat4 uCameraMatrix;
 uniform mat4 uModelViewMatrix;
 uniform vec3 uColor[4];//Color Array
 
 out lowp vec4 color;//Color to send to fragment shader.
 
 void main(void){
-    color = vec4(uColor[int(a_color)], 1.0);//Using the 4th float as a color index.
-    gl_Position = uModelViewMatrix * vec4(a_position, 1.0);
+    color = vec4(uColor[int(aColour)], 1.0);//Using the 4th float as a color index.
+    gl_Position = uPerspectiveMatrix * uCameraMatrix *  uModelViewMatrix * vec4(aPosition, 1.0);
 }
 </script>
 
