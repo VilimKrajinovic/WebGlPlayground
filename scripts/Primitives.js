@@ -31,14 +31,14 @@ Primitives.MultiQuad = class {
             arrayUv = [],
             arrayVertices = [];
 
-        for (let i = 0; i < 10; i++) {
-            let size = 0.2 + (0.8 * Math.random()),
+        for (let i = 0; i < 100; i++) {
+            let size = 0.5,
                 half = size * 0.5,
                 angle = Math.PI * 2 * Math.random(),
                 dx = half * Math.cos(angle),
                 dy = half * Math.sin(angle),
                 x = -2.5 + (Math.random() * 5),
-                y = -2.5 + (Math.random() * 5),
+                y = 0.1,
                 z = 2.5 - (Math.random() * 5),
                 p = i * 4;
 

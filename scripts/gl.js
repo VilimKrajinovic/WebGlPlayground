@@ -17,6 +17,7 @@ function GLInstance(canvasID) {
     }
 
     gl.mMeshCache = [];
+    gl.mTextureCache = [];
 
     //Setup GL
     gl.cullFace(gl.BACK);
@@ -89,10 +90,33 @@ function GLInstance(canvasID) {
         this.bindVertexArray(null);
         this.bindBuffer(this.ARRAY_BUFFER, null);
 
-        if(arrayIndex != null && arrayIndex !== undefined)  this.bindBuffer(this.ELEMENT_ARRAY_BUFFER,null);
+        if (arrayIndex != null && arrayIndex !== undefined) this.bindBuffer(this.ELEMENT_ARRAY_BUFFER, null);
 
         this.mMeshCache[name] = rtn;
         return rtn;
+    }
+
+    gl.fLoadTexture = function (name, image, doYFlip) {
+        let texture = this.createTexture();
+        if (doYFlip == true) {
+            this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, true); //flips the uv upside down, usefull if mesh comes with an upside down UV
+        }
+
+        this.bindTexture(this.TEXTURE_2D, texture);
+        this.texImage2D(this.TEXTURE_2D, 0, this.RGBA, this.RGBA, this.UNSIGNED_BYTE, image);
+
+        this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MAG_FILTER, this.LINEAR);
+        this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MIN_FILTER, this.LINEAR_MIPMAP_NEAREST);
+        this.generateMipmap(this.TEXTURE_2D);
+
+        this.bindTexture(this.TEXTURE_2D, null);
+        this.mTextureCache[name] = texture;
+
+        if (doYFlip == true) {
+            this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, false);
+        }
+
+        return texture;
     }
 
     gl.fSetSize = function (w, h) {
