@@ -52,7 +52,7 @@ class Shader {
         this.gl.bindVertexArray(model.mesh.vao);
 
         if (model.mesh.noCulling) this.gl.disable(gl.CULL_FACE);
-        if (model.mesh.doBlending) this.gl.disable(gl.BLEND);
+        if (model.mesh.doBlending) this.gl.enable(gl.BLEND);
 
 
         if (model.mesh.indexCount) {
@@ -63,7 +63,7 @@ class Shader {
 
         this.gl.bindVertexArray(null);
         if (model.mesh.noCulling) this.gl.enable(gl.CULL_FACE);
-        if (model.mesh.doBlending) this.gl.enable(gl.BLEND);
+        if (model.mesh.doBlending) this.gl.disable(gl.BLEND);
         return this;
 
     }

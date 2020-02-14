@@ -45,8 +45,8 @@ function GLInstance(canvasID) {
 
     gl.fCreateMeshVAO = function (name, arrayIndex, arrayVertex, arrayNormals, arrayUvs) {
         let rtn = {drawMode: this.TRIANGLES};
-        rtn.vao = this.createVertexArray();
 
+        rtn.vao = this.createVertexArray();
         this.bindVertexArray(rtn.vao);
 
         if (arrayVertex !== undefined && arrayVertex != null) {
@@ -84,11 +84,12 @@ function GLInstance(canvasID) {
 
             this.bindBuffer(this.ELEMENT_ARRAY_BUFFER, rtn.bufferIndex);
             this.bufferData(this.ELEMENT_ARRAY_BUFFER, new Uint16Array(arrayIndex), this.STATIC_DRAW);
-            this.bindBuffer(this.ELEMENT_ARRAY_BUFFER, null);
         }
 
         this.bindVertexArray(null);
         this.bindBuffer(this.ARRAY_BUFFER, null);
+
+        if(arrayIndex != null && arrayIndex !== undefined)  this.bindBuffer(this.ELEMENT_ARRAY_BUFFER,null);
 
         this.mMeshCache[name] = rtn;
         return rtn;

@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1cca1fb2-9ac1-4af4-80b1-f45a7b2c8b32" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/ShaderExtras.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/Camera.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Camera.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/Primitives.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Primitives.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/RenderLoop.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/RenderLoop.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/Shader.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Shader.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/gl.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/gl.js" afterDir="false" />
     </list>
@@ -23,8 +20,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1024">
-              <caret line="97" column="10" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="10" />
+            <state relative-caret-position="1040">
+              <caret line="103" column="1" lean-forward="true" selection-start-line="103" selection-start-column="1" selection-end-line="103" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -41,8 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/Primitives.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="14" column="37" lean-forward="true" selection-start-line="14" selection-start-column="37" selection-end-line="14" selection-end-column="37" />
+            <state relative-caret-position="368">
+              <caret line="139" column="1" lean-forward="true" selection-start-line="139" selection-start-column="1" selection-end-line="139" selection-end-column="1" />
               <folding>
                 <element signature="e#43#2934#0" />
                 <element signature="e#79#147#0" />
@@ -53,20 +50,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/Shader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="960">
-              <caret line="60" column="79" lean-forward="true" selection-start-line="60" selection-start-column="79" selection-end-line="61" selection-end-column="9" />
+            <state relative-caret-position="752">
+              <caret line="65" column="50" selection-start-line="65" selection-start-column="50" selection-end-line="65" selection-end-column="50" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/gl.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="45" column="21" selection-start-line="45" selection-start-column="7" selection-end-line="45" selection-end-column="21" />
+            <state relative-caret-position="723">
+              <caret line="85" column="102" selection-start-line="85" selection-start-column="102" selection-end-line="85" selection-end-column="102" />
             </state>
           </provider>
         </entry>
@@ -117,6 +114,8 @@
       <find>e.shi</find>
       <find>drawElements</find>
       <find>uv</find>
+      <find>fCreateMeshVao</find>
+      <find>renderModel</find>
       <find>modal</find>
     </findStrings>
     <replaceStrings>
@@ -133,10 +132,10 @@
         <option value="$PROJECT_DIR$/scripts/ShaderExtras.js" />
         <option value="$PROJECT_DIR$/scripts/Camera.js" />
         <option value="$PROJECT_DIR$/scripts/RenderLoop.js" />
-        <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/scripts/Primitives.js" />
-        <option value="$PROJECT_DIR$/scripts/Shader.js" />
         <option value="$PROJECT_DIR$/scripts/gl.js" />
+        <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/scripts/Shader.js" />
       </list>
     </option>
   </component>
@@ -184,7 +183,7 @@
     <property name="GO_FMT" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1581716414189" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1581718392570" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Sketchpunk/FunWithWebGL2/lesson_007" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -480,11 +479,18 @@
       <option name="project" value="LOCAL" />
       <updated>1581703876194</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Trying to make quads render. NOT WORKING, figure out whats wrong">
+      <created>1581716606712</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1581716606712</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13211000" />
+    <option name="totallyTimeSpent" value="15056000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
@@ -541,14 +547,15 @@
     <MESSAGE value="Rendering a grid" />
     <MESSAGE value="Added a math library for vector and matrix math" />
     <MESSAGE value="Camera done." />
-    <option name="LAST_COMMIT_MESSAGE" value="Camera done." />
+    <MESSAGE value="Trying to make quads render. NOT WORKING, figure out whats wrong" />
+    <option name="LAST_COMMIT_MESSAGE" value="Trying to make quads render. NOT WORKING, figure out whats wrong" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/scripts/Primitives.js</url>
-          <line>27</line>
+          <line>26</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
@@ -577,19 +584,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/Primitives.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="14" column="37" lean-forward="true" selection-start-line="14" selection-start-column="37" selection-end-line="14" selection-end-column="37" />
-          <folding>
-            <element signature="e#43#2934#0" />
-            <element signature="e#79#147#0" />
-            <element signature="e#78#2931#0" />
-            <element signature="e#595#1358#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/Camera.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2080">
@@ -611,24 +605,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/Shader.js">
+    <entry file="file://$PROJECT_DIR$/scripts/Primitives.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="60" column="79" lean-forward="true" selection-start-line="60" selection-start-column="79" selection-end-line="61" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1024">
-          <caret line="97" column="10" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="10" />
+        <state relative-caret-position="368">
+          <caret line="139" column="1" lean-forward="true" selection-start-line="139" selection-start-column="1" selection-end-line="139" selection-end-column="1" />
+          <folding>
+            <element signature="e#43#2934#0" />
+            <element signature="e#79#147#0" />
+            <element signature="e#78#2931#0" />
+            <element signature="e#595#1358#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/gl.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="45" column="21" selection-start-line="45" selection-start-column="7" selection-end-line="45" selection-end-column="21" />
+        <state relative-caret-position="723">
+          <caret line="85" column="102" selection-start-line="85" selection-start-column="102" selection-end-line="85" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1040">
+          <caret line="103" column="1" lean-forward="true" selection-start-line="103" selection-start-column="1" selection-end-line="103" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/Shader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="752">
+          <caret line="65" column="50" selection-start-line="65" selection-start-column="50" selection-end-line="65" selection-end-column="50" />
         </state>
       </provider>
     </entry>

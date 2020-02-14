@@ -19,8 +19,7 @@ Primitives.Quad = class {
         mesh.doBlending = true;
         return mesh;
     }
-
-}
+};
 
 Primitives.GridAxis = class {
 
