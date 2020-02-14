@@ -131,7 +131,7 @@ class CameraController {
 
         if(!e.shiftKey){
             this.camera.transform.rotation.y += dx * (this.rotateRate / this.canvas.width);
-            this.camera.transform.rotation.x += dy * (this.rotateRate / this.canvas.height);
+            this.camera.transform.rotation.x += dy * (this.rotateRate / this.canvas.width);
         }else{
             this.camera.panX(-dx * (this.panRate/this.canvas.width));
             this.camera.panY(dy * (this.panRate/this.canvas.height));

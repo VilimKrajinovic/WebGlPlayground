@@ -9,7 +9,7 @@ const ATTRIBUTE_UV_LOCATION = 2;
 
 function GLInstance(canvasID) {
     let canvas = document.getElementById(canvasID);
-    let gl = canvas.getContext("webgl2");
+    let gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl2"));
 
     if (!gl) {
         console.error("WebGl context is not available");
@@ -18,6 +18,13 @@ function GLInstance(canvasID) {
 
     gl.mMeshCache = [];
 
+    //Setup GL
+    gl.cullFace(gl.BACK);
+    gl.frontFace(gl.CCW);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.depthFunc(gl.LEQUAL);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
     gl.fClear = function () {
@@ -95,6 +102,10 @@ function GLInstance(canvasID) {
 
         this.viewport(0, 0, w, h);
         return this;
+    };
+
+    gl.fFitScreen = function (wp, hp) {
+        return this.fSetSize(window.innerWidth * (wp || 1), window.innerHeight * (hp || 1));
     };
 
 

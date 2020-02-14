@@ -21,17 +21,17 @@ class Shader {
         return this;
     }
 
-    setPerspective(matrixData){
+    setPerspective(matrixData) {
         this.gl.uniformMatrix4fv(this.uniformLocation.perspective, false, matrixData);
         return this;
     }
 
-    setModelMatrix(matrixData){
+    setModelMatrix(matrixData) {
         this.gl.uniformMatrix4fv(this.uniformLocation.modelMatrix, false, matrixData);
         return this;
     }
 
-    setCameraMatrix(matrixData){
+    setCameraMatrix(matrixData) {
         this.gl.uniformMatrix4fv(this.uniformLocation.cameraMatrix, false, matrixData);
         return this;
     }
@@ -50,13 +50,20 @@ class Shader {
     renderModel(model) {
         this.setModelMatrix(model.transform.getViewMatrix());
         this.gl.bindVertexArray(model.mesh.vao);
+
+        if (model.mesh.noCulling) this.gl.disable(gl.CULL_FACE);
+        if (model.mesh.doBlending) this.gl.disable(gl.BLEND);
+
+
         if (model.mesh.indexCount) {
-            this.gl.drawElements(model.mesh.drawMode, model.mesh.indexLength, gl.UNSIGNED_SHORT, 0);
+            this.gl.drawElements(model.mesh.drawMode, model.mesh.indexCount, gl.UNSIGNED_SHORT, 0);
         } else {
             this.gl.drawArrays(model.mesh.drawMode, 0, model.mesh.vertexCount);
         }
 
         this.gl.bindVertexArray(null);
+        if (model.mesh.noCulling) this.gl.enable(gl.CULL_FACE);
+        if (model.mesh.doBlending) this.gl.enable(gl.BLEND);
         return this;
 
     }
@@ -166,7 +173,7 @@ class ShaderUtil {
 
     static getStandardUniformLocations(gl, program) {
         return {
-            perspective: gl.getUniformLocation(program, "uPerspectiveMatrix"),
+            perspective: gl.getUniformLocation(program, "uProjectionMatrix"),
             modelMatrix: gl.getUniformLocation(program, "uModelViewMatrix"),
             cameraMatrix: gl.getUniformLocation(program, "uCameraMatrix"),
             mainTexture: gl.getUniformLocation(program, "uMainTexture")

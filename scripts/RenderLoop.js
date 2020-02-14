@@ -7,7 +7,7 @@ class RenderLoop {
         this.isActive = false;      //control the on off state of the render loop
         this.fps = 0;               //how fast the loop is going
 
-        if (!fps && fps > 0) {
+        if (fps != undefined && fps > 0) {
             this.msFpsLimit = 1000 / fps;
 
             this.run = function () {
