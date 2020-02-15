@@ -4,140 +4,59 @@
     <link rel="stylesheet" href="style.css">
 
     <script src="scripts/webgl-debug.js"></script>
-    <script src="scripts/Math.js"></script>
     <script src="scripts/gl.js"></script>
+    <script src="scripts/Math.js"></script>
     <script src="scripts/Shader.js"></script>
     <script src="scripts/RenderLoop.js"></script>
     <script src="scripts/Transform.js"></script>
     <script src="scripts/Model.js"></script>
     <script src="scripts/Primitives.js"></script>
     <script src="scripts/Camera.js"></script>
-    <script src="scripts/ShaderExtras.js"></script>
-    <script src="scripts/ObjLoader.js"></script>
-
     <script src="scripts/Debug.js"></script>
-    <script src="scripts/SkyMap.js"></script>
     <script src="scripts/GridFloor.js"></script>
-
+    <script src="scripts/SkyMap.js"></script>
+    <script src="scripts/Resources.js"></script>
 
     <script>
         let gl, gRenderLoop, gShader, gModel, gCamera, gCameraController, gSkyMap;
-        let gGridFloor, mDebug, mDebugLine;
-        let gModel2;
+        let gGridFloor, mDebugVertex, mDebugLine;
 
 
         window.addEventListener("load", function () {
-            //Main Setup
             gl = GLInstance("glcanvas").fFitScreen(0.99, 0.99).fClear();
 
             gCamera = new Camera(gl);
             gCamera.transform.position.set(0, 1, 3);
             gCameraController = new CameraController(gl, gCamera);
 
-            gl.fLoadTexture("tex001", document.getElementById("pirateTexture"));
-
-            gSkyMap = new Skymap(gl)
-                .setDayTextureByDom("cube01_right", "cube01_left", "cube01_top", "cube01_bottom", "cube01_back", "cube01_front")
-                .setNightTextureByDom("cube02_right", "cube02_left", "cube02_top", "cube02_bottom", "cube02_back", "cube02_front")
-                .setTime(0.7)
-                .finalize();
             gGridFloor = new GridFloor(gl);
+            gRenderLoop = new RenderLoop(onRender);
 
-            gShader = new TestShader(gl, gCamera.projectionMatrix)
-                .setTexture(gl.mTextureCache["tex001"]);
-
-            gModel2 = new Model(ObjLoader.domToMesh("objData", "objFile", true));
-            gModel2.setPosition(0, 0, 0).setScale(0.5, 0.5, 0.5);
-
-            // gModel = Primitives.Cube.createModel(gl, "Cube", true);
-            // gModel.setPosition(0, 0, 0);
-
-            mDebug = new VertexDebugger(gl, 10)
-                .addColor('#ff0000')
-                .addPoint(0, 0, 0, 0)
-                .finalize();
-
-            //Start Rendering
-            gRenderLoop = new RenderLoop(onRender).start();
+            Resources.setup(gl, onReady).loadTexture("tex001", "resources/textures/UV_Grid_Lrg.jpg").start();
         });
 
+        function onReady() {
+            gShader = new ShaderBuilder(gl, "vertex_shader", "fragment_shader")
+                .prepareUniforms(
+                    "uProjectionMatrix", "mat4",
+                    "uModelViewMatrix", "mat4",
+                    "uCameraMatrix", "mat4")
+                .prepareTextures("uTexture", "tex001")
+                .setUniforms("uProjectionMatrix", gCamera.projectionMatrix);
 
-        let radius = 1.5,
-            angle = 0,
-            angleIncrement = 1,
-            yPosition = 0,
-            yPositionIncrement = 0.2;
+            gModel = Primitives.Cube.createModel(gl, "Cube", true)
+                .setPosition(0, 0, 0);
 
-        function onRender(deltaTime) {
-            gl.fClear();
-
-            gCamera.updateViewMatrix();
-            gSkyMap.render(gCamera);
-            gGridFloor.render(gCamera);
-
-            angle += angleIncrement * deltaTime;
-            yPosition += yPositionIncrement * deltaTime;
-
-            let x = radius * Math.cos(angle),
-                z = radius * Math.sin(angle),
-                y = MathUtil.Map(Math.sin(yPosition), -1, 1, 0.1, 2);
-
-            mDebug.transform.position.set(x, y, z);
-
-            gShader.activate()
-                .preRender()
-                .setCameraMatrix(gCamera.viewMatrix)
-                .setCameraPosition(gCamera)
-                .setLightPosition(mDebug)
-                .renderModel(gModel2.preRender());
-
-            mDebug.render(gCamera);
+            gRenderLoop.start();
         }
 
-        class TestShader extends Shader {
-            constructor(gl, projectionMatrix) {
-                let vertSrc = ShaderUtil.domShaderSrc("vertex_shader"),
-                    fragSrc = ShaderUtil.domShaderSrc("fragment_shader");
-                super(gl, vertSrc, fragSrc);
+        function onRender(dt) {
+            gl.fClear();
+            gCamera.updateViewMatrix();
+            gGridFloor.render(gCamera);
 
-                this.uniformLocation.lightPosition = gl.getUniformLocation(this.program, "uLightPosition");
-                this.uniformLocation.cameraPosition = gl.getUniformLocation(this.program, "uCameraPosition");
-                this.uniformLocation.matrixNormal = gl.getUniformLocation(this.program, "uNormalMatrix");
-
-                this.setPerspective(projectionMatrix);
-                this.mainTexture = -1;
-                gl.useProgram(null);
-            }
-
-            setLightPosition(obj){
-                this.gl.uniform3fv(this.uniformLocation.lightPosition, new Float32Array(obj.transform.position.getArray()));
-                return this;
-            }
-
-            setCameraPosition(obj) {
-                this.gl.uniform3fv(this.uniformLocation.cameraPosition, new Float32Array(obj.transform.position.getArray()));
-                return this;
-            }
-
-            setTexture(textureId) {
-                this.mainTexture = textureId;
-                return this;
-            }
-
-            //override
-            preRender() {
-                this.gl.activeTexture(this.gl.TEXTURE0);
-                this.gl.bindTexture(this.gl.TEXTURE_2D, this.mainTexture);
-                this.gl.uniform1i(this.uniformLocation.mainTexture, 0);
-
-                return this;
-            }
-
-            renderModel(model) {
-                this.gl.uniformMatrix3fv(this.uniformLocation.matrixNormal, false, model.transform.getNormalMatrix());
-                super.renderModel(model);
-                return this;
-            }
+            gShader.preRender("uCameraMatrix", gCamera.viewMatrix)
+                .renderModel(gModel.preRender(), false);
         }
     </script>
 </head>
@@ -146,92 +65,79 @@
     <canvas id="glcanvas"></canvas>
 </div>
 
-<img src="resources/textures/pirate_girl.png" id="pirateTexture" alt="" style="display:none;">
-<img src="resources/textures/UV_Grid_Lrg.jpg" id="cubeTexture" alt="" style="display:none;">
-
-<img src="resources/textures/cubemaps/miramar_back.png" id="cube01_back" style="display:none;">
-<img src="resources/textures/cubemaps/miramar_front.png" id="cube01_front" style="display:none;">
-<img src="resources/textures/cubemaps/miramar_bottom.png" id="cube01_bottom" style="display:none;">
-<img src="resources/textures/cubemaps/miramar_left.png" id="cube01_left" style="display:none;">
-<img src="resources/textures/cubemaps/miramar_right.png" id="cube01_right" style="display:none;">
-<img src="resources/textures/cubemaps/miramar_top.png" id="cube01_top" style="display:none;">
-
-<img src="resources/textures/cubemaps/grimmnight_back.png" id="cube02_back" style="display:none;">
-<img src="resources/textures/cubemaps/grimmnight_front.png" id="cube02_front" style="display:none;">
-<img src="resources/textures/cubemaps/grimmnight_bottom.png" id="cube02_bottom" style="display:none;">
-<img src="resources/textures/cubemaps/grimmnight_left.png" id="cube02_left" style="display:none;">
-<img src="resources/textures/cubemaps/grimmnight_right.png" id="cube02_right" style="display:none;">
-<img src="resources/textures/cubemaps/grimmnight_top.png" id="cube02_top" style="display:none;">
-
-
+<!--//////////////////////////////////////////////////////////////-->
+<!--//                  VERTEX SHADER-->
+<!--//////////////////////////////////////////////////////////////-->
 <script id="vertex_shader" type="x-shader/x-vertex">#version 300 es
 in vec4 aPosition;//w component is index for uColor
 in vec3 aNormal;
 in vec2 aUv;
 
 uniform mat4 uProjectionMatrix;
-uniform mat4 uCameraMatrix;
 uniform mat4 uModelViewMatrix;
-uniform mat3 uNormalMatrix;
-uniform vec3 uCameraPosition;
+uniform mat4 uCameraMatrix;
 
-out vec3 vPosition;
-out vec3 vNormal;
-out vec3 vCameraPosition;
 out highp vec2 vUv;
 
 void main(void){
-    vec4 position = uModelViewMatrix * vec4(aPosition.xyz, 1.0); //position in world space
-    vPosition = position.xyz;
-    vNormal = uNormalMatrix * aNormal; // normals scaled and rotated correctly
     vUv = aUv;
-
-    vCameraPosition = (inverse(uCameraMatrix) * vec4(uCameraPosition, 1.0)).xyz; //Need to move camera position into world space for specular calculation;
-
-    gl_Position = uProjectionMatrix * uCameraMatrix * position;
+    gl_Position = uProjectionMatrix * uCameraMatrix * uModelViewMatrix * vec4(aPosition.xyz, 1.0);
 }
 </script>
 
+<!--//////////////////////////////////////////////////////////////-->
+<!--//                  FRAGMENT SHADER-->
+<!--//////////////////////////////////////////////////////////////-->
 <script id="fragment_shader" type="x-shader/x-fragment">#version 300 es
 precision mediump float;
 
-uniform sampler2D uMainTexture;
-uniform vec3 uLightPosition;
+uniform sampler2D uTexture;
 
-in vec3 vPosition;
-in vec3 vNormal;
 in highp vec2 vUv;
-in vec3 vCameraPosition;
 
 out vec4 outColor;
 
 void main(void){
-    vec4 cBase = texture(uMainTexture, vUv);
-    vec3 cLight = vec3(1.0, 1.0, 1.0);
-
-    float ambientStrength = 0.15;
-    vec3 cAmbient = ambientStrength * cLight;
-
-    vec3 lightDirection = normalize(uLightPosition - vPosition);
-
-    //Diffuse lighting
-    float diffAngle = max(dot(vNormal, lightDirection), 0.0);
-    float diffuseStrength = 0.3;
-    vec3 cDiffuse = diffAngle * cLight * diffuseStrength;
-
-    //Specular lighting
-    float specularStrength = 0.15;
-    float specularShininess = 1.0;
-    vec3 cameraDirection = normalize(vCameraPosition - vPosition);
-    vec3 reflectDirection = reflect(-lightDirection, vNormal);
-
-    float specular = pow(max(dot(reflectDirection, cameraDirection), 0.0), specularShininess);
-    vec3 cSpecular = specularStrength * specular * cLight;
-
-    vec3 finalColor = (cAmbient + cDiffuse + cSpecular) * cBase.rgb;
-    outColor = vec4(finalColor, 1.0);
+    outColor = texture(uTexture, vUv *1.5);
 }
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18728,6 +18634,8 @@ f 3491/4195/3691 3487/4199/3694 3486/4196/3630
 f 3486/4196/3630 3488/4202/3697 3492/4198/3693
 f 3487/4199/3694 3493/4204/3699 3490/4200/3695
 f 3486/4196/3630 3490/4200/3695 3494/4201/3696
+
+
 
 
 
