@@ -16,7 +16,7 @@
 
 
     <script>
-        let gl, gRenderLoop, gShader, gModel, gCamera, gCameraController;
+        let gl, gRenderLoop, gShader, gModel, gCamera, gCameraController, gSkyMap, gSkyMapShader;
         let gGridShader, gGridModel;
 
 
@@ -30,6 +30,19 @@
 
             gl.fLoadTexture("tex001", document.getElementById("imageTexture"));
 
+            gl.fLoadCubeMap("skybox01", [
+                document.getElementById("cube01_right"), document.getElementById("cube01_left"),
+                document.getElementById("cube01_top"), document.getElementById("cube01_bottom"),
+                document.getElementById("cube01_back"), document.getElementById("cube01_front")
+            ]);
+
+            gl.fLoadCubeMap("skybox02", [
+                document.getElementById("cube02_right"), document.getElementById("cube02_left"),
+                document.getElementById("cube02_top"), document.getElementById("cube02_bottom"),
+                document.getElementById("cube02_back"), document.getElementById("cube02_front")
+            ]);
+
+
             //Setup grid
             gGridShader = new GridAxisShader(gl, gCamera.projectionMatrix);
             gGridModel = Primitives.GridAxis.createModel(gl, true);
@@ -40,6 +53,14 @@
             gModel = Primitives.Cube.createModel(gl);
             gModel.setPosition(0, 0.6, 0);
 
+            gSkyMap = new Model(Primitives.Cube.createMesh(gl, "Skymap", 100, 100, 100, 0, 0, 0));
+            gSkyMapShader = new SkyMapShader(
+                gl,
+                gCamera.projectionMatrix,
+                gl.mTextureCache["skybox01"],
+                gl.mTextureCache["skybox02"]
+            );
+
             //Start Rendering
             gRenderLoop = new RenderLoop(onRender).start();
         });
@@ -47,6 +68,11 @@
         function onRender(deltaTime) {
             gCamera.updateViewMatrix();
             gl.fClear();
+
+            gSkyMapShader.activate().preRender()
+                .setCameraMatrix(gCamera.getTranslatelessMatrix())
+                .setTime(performance.now())
+                .renderModel(gSkyMap);
 
             gGridShader.activate()
                 .setCameraMatrix(gCamera.viewMatrix)
@@ -57,6 +83,42 @@
                 .setCameraMatrix(gCamera.viewMatrix)
                 .setTime(performance.now())
                 .renderModel(gModel.preRender())
+        }
+
+
+        class SkyMapShader extends Shader{
+            constructor(gl, projectionMatrix, day, night){
+                let vertSrc = ShaderUtil.domShaderSrc("skyVertexShader"),
+                    fragSrc = ShaderUtil.domShaderSrc("skyFragmentShader");
+                super(gl, vertSrc, fragSrc);
+
+                this.uniformLocation.time = gl.getUniformLocation(this.program, "uTime");
+                this.uniformLocation.dayTexture = gl.getUniformLocation(this.program, "uDayTexture");
+                this.uniformLocation.nightTexture = gl.getUniformLocation(this.program, "uNightTexture");
+
+                this.setPerspective(projectionMatrix);
+                this.textureDay = day;
+                this.textureNight = night;
+                gl.useProgram(null);
+            }
+
+            setTime(t){
+                this.gl.uniform1f(this.uniformLocation.time, t);
+                return this;
+            }
+
+            preRender() {
+                this.gl.activeTexture(this.gl.TEXTURE0);
+                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.textureDay);
+                this.gl.uniform1i(this.uniformLocation.dayTexture, 0);
+
+                this.gl.activeTexture(this.gl.TEXTURE1);
+                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.textureNight);
+                this.gl.uniform1i(this.uniformLocation.nightTexture, 1);
+
+                return this;
+            }
+
         }
 
         class TestShader extends Shader {
@@ -103,6 +165,21 @@
 
 <img src="resources/textures/UV_Grid_Lrg.jpg" id="imageTexture" alt="" style="display:none;">
 
+<img src="resources/textures/cubemaps/miramar_back.png" id="cube01_back" style="display:none;">
+<img src="resources/textures/cubemaps/miramar_front.png" id="cube01_front" style="display:none;">
+<img src="resources/textures/cubemaps/miramar_bottom.png" id="cube01_bottom" style="display:none;">
+<img src="resources/textures/cubemaps/miramar_left.png" id="cube01_left" style="display:none;">
+<img src="resources/textures/cubemaps/miramar_right.png" id="cube01_right" style="display:none;">
+<img src="resources/textures/cubemaps/miramar_top.png" id="cube01_top" style="display:none;">
+
+<img src="resources/textures/cubemaps/grimmnight_back.png" id="cube02_back" style="display:none;">
+<img src="resources/textures/cubemaps/grimmnight_front.png" id="cube02_front" style="display:none;">
+<img src="resources/textures/cubemaps/grimmnight_bottom.png" id="cube02_bottom" style="display:none;">
+<img src="resources/textures/cubemaps/grimmnight_left.png" id="cube02_left" style="display:none;">
+<img src="resources/textures/cubemaps/grimmnight_right.png" id="cube02_right" style="display:none;">
+<img src="resources/textures/cubemaps/grimmnight_top.png" id="cube02_top" style="display:none;">
+
+
 <script id="vertex_shader" type="x-shader/x-vertex">#version 300 es
 in vec4 aPosition;//w component is index for uColor
 in vec3 aNormal;
@@ -146,6 +223,42 @@ void main(void){
     finalColor = mix(color, tex, 0.8f);
 }
 </script>
+
+
+
+
+
+<script id="skyVertexShader" type="x-shader/x-vertex">#version 300 es
+in vec4 aPosition;//w component is index for uColor
+in vec2 aUv;
+
+uniform mat4 uProjectionMatrix;
+uniform mat4 uCameraMatrix;
+uniform mat4 uModelViewMatrix;
+
+out highp vec3 textureCoordinates;
+
+void main(void){
+    textureCoordinates = aPosition.xyz;
+    gl_Position = uProjectionMatrix * uCameraMatrix * uModelViewMatrix * vec4(aPosition.xyz, 1.0);
+}
+</script>
+
+<script id="skyFragmentShader" type="x-shader/x-fragment">#version 300 es
+precision mediump float;
+
+in highp vec3 textureCoordinates;
+uniform samplerCube uDayTexture;
+uniform samplerCube uNightTexture;
+uniform float uTime;
+
+out vec4 finalColor;
+
+void main(void){
+    finalColor = mix( texture(uDayTexture, textureCoordinates), texture(uNightTexture,textureCoordinates),abs(sin(uTime * 0.0001)));
+}
+</script>
+
 
 </body>
 </html>

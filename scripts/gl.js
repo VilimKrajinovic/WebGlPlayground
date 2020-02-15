@@ -121,6 +121,29 @@ function GLInstance(canvasID) {
         return rtn;
     }
 
+    gl.fLoadCubeMap = function(name, imageArray){
+        if(imageArray.length !== 6){
+            return null;
+        }
+
+        let texture = this.createTexture();
+        this.bindTexture(this.TEXTURE_CUBE_MAP, texture);
+
+        for (let i = 0; i < 6; i++) {
+            this.texImage2D(this.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, this.RGBA, this.RGBA, this.UNSIGNED_BYTE, imageArray[i]);
+        }
+
+        this.texParameteri(this.TEXTURE_CUBE_MAP, this.TEXTURE_MAG_FILTER, this.LINEAR);
+        this.texParameteri(this.TEXTURE_CUBE_MAP, this.TEXTURE_MIN_FILTER, this.LINEAR);
+        this.texParameteri(this.TEXTURE_CUBE_MAP, this.TEXTURE_WRAP_S, this.CLAMP_TO_EDGE);
+        this.texParameteri(this.TEXTURE_CUBE_MAP, this.TEXTURE_WRAP_T, this.CLAMP_TO_EDGE);
+        this.texParameteri(this.TEXTURE_CUBE_MAP, this.TEXTURE_WRAP_R, this.CLAMP_TO_EDGE);
+
+        this.bindTexture(this.TEXTURE_CUBE_MAP, null);
+        this.mTextureCache[name] = texture;
+        return texture;
+    };
+
     gl.fLoadTexture = function (name, image, doYFlip) {
         let texture = this.createTexture();
         if (doYFlip == true) {

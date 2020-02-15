@@ -62,6 +62,13 @@ class Camera {
         Matrix4.invert(this.viewMatrix, this.transform.matrixView.raw);
         return this.viewMatrix;
     }
+
+    getTranslatelessMatrix(){
+        let mat = new Float32Array(this.viewMatrix);
+        mat[12] = mat[13] = mat[14] = 0.0; // reset translation to 0, we dont want the skymap to move
+        return mat;
+    }
+
 }
 
 Camera.MODE_FREE = 0;
