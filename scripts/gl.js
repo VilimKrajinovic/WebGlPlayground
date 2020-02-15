@@ -7,6 +7,31 @@ const ATTRIBUTE_UV_NAME = "aUv";
 const ATTRIBUTE_UV_LOCATION = 2;
 
 
+class GlUtil {
+    static toRgbArray() {
+        if (arguments.length === 0) {
+            return null;
+        }
+        let rtn = [];
+
+        for (let i = 0, c, p; i < arguments.length; i++) {
+            if (arguments[i].length < 6) {
+                continue;
+            }
+            c = arguments[i];
+            p = (c[0] === "#") ? 1 : 0;
+
+            rtn.push(
+                parseInt(c[p] + c[p + 1], 16) / 255,
+                parseInt(c[p +2] + c[p+3], 16)/255,
+                parseInt(c[p +4] + c[p+5], 16)/255
+            );
+        }
+
+        return rtn;
+    }
+}
+
 function GLInstance(canvasID) {
     let canvas = document.getElementById(canvasID);
     let gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl2"));
@@ -44,7 +69,7 @@ function GLInstance(canvasID) {
         return buffer;
     };
 
-    gl.fCreateMeshVAO = function (name, arrayIndex, arrayVertex, arrayNormals, arrayUvs) {
+    gl.fCreateMeshVAO = function (name, arrayIndex, arrayVertex, arrayNormals, arrayUvs, vertexLength) {
         let rtn = {drawMode: this.TRIANGLES};
 
         rtn.vao = this.createVertexArray();
@@ -52,13 +77,13 @@ function GLInstance(canvasID) {
 
         if (arrayVertex !== undefined && arrayVertex != null) {
             rtn.bufferVertices = this.createBuffer();
-            rtn.vertexComponentLength = 3;
+            rtn.vertexComponentLength = vertexLength || 3;
             rtn.vertexCount = arrayVertex.length / rtn.vertexComponentLength;
 
             this.bindBuffer(this.ARRAY_BUFFER, rtn.bufferVertices);
             this.bufferData(this.ARRAY_BUFFER, new Float32Array(arrayVertex), this.STATIC_DRAW);
             this.enableVertexAttribArray(ATTRIBUTE_POSITION_LOCATION);
-            this.vertexAttribPointer(ATTRIBUTE_POSITION_LOCATION, 3, this.FLOAT, false, 0, 0);
+            this.vertexAttribPointer(ATTRIBUTE_POSITION_LOCATION, rtn.vertexComponentLength, this.FLOAT, false, 0, 0);
         }
 
         if (arrayNormals !== undefined && arrayNormals != null) {
@@ -99,7 +124,7 @@ function GLInstance(canvasID) {
     gl.fLoadTexture = function (name, image, doYFlip) {
         let texture = this.createTexture();
         if (doYFlip == true) {
-            this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, true); //flips the uv upside down, usefull if mesh comes with an upside down UV
+            this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, true); //flips the uv upside down, useful if mesh comes with an upside down UV
         }
 
         this.bindTexture(this.TEXTURE_2D, texture);

@@ -30,7 +30,6 @@
 
             gl.fLoadTexture("tex001", document.getElementById("imageTexture"));
 
-
             //Setup grid
             gGridShader = new GridAxisShader(gl, gCamera.projectionMatrix);
             gGridModel = Primitives.GridAxis.createModel(gl, true);
@@ -38,7 +37,8 @@
             gShader = new TestShader(gl, gCamera.projectionMatrix)
                 .setTexture(gl.mTextureCache["tex001"]);
 
-            gModel = Primitives.MultiQuad.createModel(gl);
+            gModel = Primitives.Cube.createModel(gl);
+            gModel.setPosition(0, 0.6, 0);
 
             //Start Rendering
             gRenderLoop = new RenderLoop(onRender).start();
@@ -55,6 +55,7 @@
             gShader.activate()
                 .preRender()
                 .setCameraMatrix(gCamera.viewMatrix)
+                .setTime(performance.now())
                 .renderModel(gModel.preRender())
         }
 
@@ -64,10 +65,19 @@
                     fragSrc = ShaderUtil.domShaderSrc("fragment_shader");
                 super(gl, vertSrc, fragSrc);
 
+                this.uniformLocation.time = gl.getUniformLocation(this.program, "uTime");
+
+                let uColor = gl.getUniformLocation(this.program, "uColor");
+                gl.uniform3fv(uColor, new Float32Array(GlUtil.toRgbArray("#FF0000", "00FF00", "0000FF", "909090", "C0C0C0", "404040")));
+
                 this.setPerspective(projectionMatrix);
                 this.mainTexture = -1;
-
                 gl.useProgram(null);
+            }
+
+            setTime(time) {
+                this.gl.uniform1f(this.uniformLocation.time, time);
+                return this;
             }
 
             setTexture(textureId) {
@@ -91,21 +101,31 @@
     <canvas id="glcanvas"></canvas>
 </div>
 
-<img src="resources/textures/grassTexture.png" id="imageTexture" alt="" style="display:none;">
+<img src="resources/textures/UV_Grid_Lrg.jpg" id="imageTexture" alt="" style="display:none;">
 
 <script id="vertex_shader" type="x-shader/x-vertex">#version 300 es
-in vec3 aPosition;
+in vec4 aPosition;//w component is index for uColor
+in vec3 aNormal;
 in vec2 aUv;
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uCameraMatrix;
 uniform mat4 uModelViewMatrix;
+uniform float uTime;
+uniform vec3 uColor[6];
 
 out highp vec2 textureCoordinates;
+out lowp vec4 color;
+
+vec3 warp(vec3 p){
+    //    return p+0.2 * abs(cos(uTime*0.002)) * aNormal;
+    return p+0.5*abs(cos(uTime*0.003 + p.y*2.0 + p.x*2.0 + p.z))*aNormal;
+}
 
 void main(void){
     textureCoordinates = aUv;
-    gl_Position = uProjectionMatrix * uCameraMatrix *  uModelViewMatrix * vec4(aPosition, 1.0);
+    color = vec4(uColor[int(aPosition.w)], 1.0);
+    gl_Position = uProjectionMatrix * uCameraMatrix * uModelViewMatrix * vec4(warp(aPosition.xyz), 1.0);
 }
 </script>
 
@@ -113,16 +133,17 @@ void main(void){
 precision mediump float;
 
 in highp vec2 textureCoordinates;
+in lowp vec4 color;
 uniform sampler2D uMainTexture;
 
 out vec4 finalColor;
 
 void main(void){
     vec4 tex = texture(uMainTexture, textureCoordinates);
-    if(tex.a < 0.5){
+    if (tex.a < 0.5){
         discard;
     }
-    finalColor = tex;
+    finalColor = mix(color, tex, 0.8f);
 }
 </script>
 
