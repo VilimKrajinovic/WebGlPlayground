@@ -23,8 +23,8 @@ class GlUtil {
 
             rtn.push(
                 parseInt(c[p] + c[p + 1], 16) / 255,
-                parseInt(c[p +2] + c[p+3], 16)/255,
-                parseInt(c[p +4] + c[p+5], 16)/255
+                parseInt(c[p + 2] + c[p + 3], 16) / 255,
+                parseInt(c[p + 4] + c[p + 5], 16) / 255
             );
         }
 
@@ -121,8 +121,8 @@ function GLInstance(canvasID) {
         return rtn;
     }
 
-    gl.fLoadCubeMap = function(name, imageArray){
-        if(imageArray.length !== 6){
+    gl.fLoadCubeMap = function (name, imageArray) {
+        if (imageArray.length !== 6) {
             return null;
         }
 
@@ -144,28 +144,43 @@ function GLInstance(canvasID) {
         return texture;
     };
 
-    gl.fLoadTexture = function (name, image, doYFlip) {
+    gl.fLoadTexture = function (name, image, doYFlip, noMipMaps) {
+
         let texture = this.createTexture();
-        if (doYFlip == true) {
+        this.mTextureCache[name] = texture;
+        return this.fUpdateTexture(name, image, doYFlip, noMipMaps);
+
+    }
+
+    gl.fUpdateTexture = function (name, image, doYFlip, noMipMaps) {
+        let texture = this.mTextureCache[name];
+
+        if (doYFlip === true) {
             this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, true); //flips the uv upside down, useful if mesh comes with an upside down UV
         }
 
         this.bindTexture(this.TEXTURE_2D, texture);
         this.texImage2D(this.TEXTURE_2D, 0, this.RGBA, this.RGBA, this.UNSIGNED_BYTE, image);
 
-        this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MAG_FILTER, this.LINEAR);
-        this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MIN_FILTER, this.LINEAR_MIPMAP_NEAREST);
-        this.generateMipmap(this.TEXTURE_2D);
+        if (noMipMaps === undefined || noMipMaps === false) {
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MAG_FILTER, this.LINEAR);
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MIN_FILTER, this.LINEAR_MIPMAP_NEAREST);
+            this.generateMipmap(this.TEXTURE_2D);
+        } else {
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MAG_FILTER, this.NEAREST);
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_MIN_FILTER, this.NEAREST);
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_WRAP_S, this.CLAMP_TO_EDGE);
+            this.texParameteri(this.TEXTURE_2D, this.TEXTURE_WRAP_T, this.CLAMP_TO_EDGE);
+        }
 
         this.bindTexture(this.TEXTURE_2D, null);
-        this.mTextureCache[name] = texture;
 
-        if (doYFlip == true) {
+        if (doYFlip === true) {
             this.pixelStorei(this.UNPACK_FLIP_Y_WEBGL, false);
         }
 
         return texture;
-    }
+    };
 
     gl.fSetSize = function (w, h) {
         this.canvas.style.width = w + "px";

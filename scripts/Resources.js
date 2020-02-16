@@ -17,6 +17,13 @@ class Resources {
         }
         return this;
     }
+    static loadVideoTexture(name, src){
+        for (let i = 0; i < arguments.length; i+=2) {
+            Resources.Queue.push({type: "vid", name: arguments[i], src: arguments[i + 1]});
+        }
+
+        return this;
+    }
 
     static loadNextItem() {
         if (Resources.Queue.length === 0) {
@@ -34,12 +41,28 @@ class Resources {
                 img.onabort = img.onerror = Resources.onDownloadError;
                 img.src = item.src;
                 break;
+            case "vid":
+                let vid = document.createElement("video");
+                vid.style.display = "none";
+                document.body.appendChild(vid);
+
+                vid.queueData = item;
+                vid.addEventListener("loadeddata", Resources.onDownloadSuccess, false);
+                vid.onabort = vid.onerror = Resources.onDownloadError;
+                vid.autoplay = true;
+                vid.loop = true;
+                vid.src = item.src;
+                vid.load();
+                vid.muted = true;
+                vid.play();
+                Resources.Videos[item.name] = vid;
+                break;
         }
     }
 
 
     static onDownloadSuccess() {
-        if (this instanceof Image) {
+        if (this instanceof Image || this.tagName === "VIDEO") {
             let data = this.queueData;
             Resources.gl.fLoadTexture(data.name, this);
         }
@@ -52,6 +75,8 @@ class Resources {
     }
 }
 
+Resources.Videos = [];
+Resources.Images = [];
 Resources.Queue = [];
 Resources.onComplete = null;
 Resources.gl = null;
