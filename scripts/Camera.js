@@ -48,12 +48,12 @@ class Camera {
         if (this.mode === Camera.MODE_FREE) {
             this.transform.matrixView.reset()
                 .vtranslate(this.transform.position)
-                .rotateX(this.transform.rotation.x * Transform.degreeToRadian)
-                .rotateY(this.transform.rotation.y * Transform.degreeToRadian);
+                .rotateY(this.transform.rotation.y * Transform.degreeToRadian)
+                .rotateX(this.transform.rotation.x * Transform.degreeToRadian);
         } else {
             this.transform.matrixView.reset()
-                .rotateX(this.transform.rotation.x * Transform.degreeToRadian)
                 .rotateY(this.transform.rotation.y * Transform.degreeToRadian)
+                .rotateX(this.transform.rotation.x * Transform.degreeToRadian)
                 .vtranslate(this.transform.position);
         }
 

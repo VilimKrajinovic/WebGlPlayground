@@ -34,11 +34,12 @@
             gCameraController = new CameraController(gl, gCamera);
 
             gGridFloor = new GridFloor(gl);
+            gSkyMap = new Skymap(gl);
             gRenderLoop = new RenderLoop(onRender);
 
-            // Resources.setup(gl, onReady).loadTexture(
-            //     "girl", "resources/textures/pirate_girl.png"
-            // ).start();
+            Resources.setup(gl, onReady).loadTexture(
+                "grass", "resources/textures/grass.jpg"
+            ).start();
 
             onReady();
         });
@@ -50,9 +51,9 @@
                     "uModelViewMatrix", "mat4",
                     "uCameraMatrix", "mat4"
                 )
-                // .prepareTextures(
-                //     "uTexture", "girl",
-                // )
+                .prepareTextures(
+                    "uTexture", "grass",
+                )
                 .setUniforms(
                     "uProjectionMatrix", gCamera.projectionMatrix,
                 );
@@ -127,7 +128,7 @@ const vec3 baseColor = vec3(1.0,0.0,0.0);
 
 void main(void){
     vec3 finalColor = lightColor * diffuseAngle + baseColor;
-    outColor = vec4(finalColor, 1.0);
+    outColor = texture(uTexture, vUv);
 }
 </script>
 
